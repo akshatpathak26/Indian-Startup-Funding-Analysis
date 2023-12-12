@@ -5,10 +5,18 @@ import streamlit as st
 
 
 
-df = pd.read_csv('startup_funding.csv')
+df = pd.read_csv('startup_cleaned.csv')
 
-df['Investors Name'] = df['Investors Name'].fillna('Undisclosed')
-st.dataframe(df)
+def load_investor_details(investor):
+    st.title(investor)
+    # Load the recent 5 investments of the investor
+    last5_df = df[df['investors'].str.contains(investor)].head()[['date','startup','vertical','city', 'round', 'amount']]
+    st.subheader('Most recent Investments')
+    st.dataframe(last5_df)
+
+
+
+
 
 st.sidebar.title('Startup Funding Analysis')
 
@@ -17,11 +25,14 @@ option = st.sidebar.selectbox('Select one', ['Overall Analysis', 'StartUp', 'Inv
 if option == 'Overall Analysis':
     st.title('Overall Analysis')
 elif option == 'StartUp':
-    st.sidebar.selectbox('Select StartUp', sorted(df["Startup Name"].unique().tolist()))
+    st.sidebar.selectbox('Select StartUp', sorted(df["startup"].unique().tolist()))
     btn1 = st.sidebar.button('Find Startup Details')
     st.title('StartUp Analysis')
 else:
-    st.sidebar.selectbox('Select StartUp', sorted(df['Investors Name'].unique().tolist()))
+    selected_investor = st.sidebar.selectbox('Select StartUp', sorted(set(df['investors'].str.split(',').sum())))
     btn2 = st.sidebar.button('Find Investor Details')
-    st.title('Investor Analysis')
+    if btn2:
+        load_investor_details(selected_investor)
+
+
     
